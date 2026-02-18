@@ -36,10 +36,13 @@ struct Config {
     //! Requested input or output latency.
     core::nanoseconds_t latency;
 
+    bool no_resampling;
+
     //! Initialize.
     Config()
         : frame_length(DefaultFrameLength)
-        , latency(0) {
+        , latency(0) 
+        , no_resampling(false) {
     }
 };
 

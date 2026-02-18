@@ -16,18 +16,18 @@ namespace roc {
 namespace sndio {
 
 SndfileSource::SndfileSource(core::IArena& arena, const Config& config)
-    : file_(NULL)
+    : in_spec_(config.sample_spec)
+    , no_resampling_(config.no_resampling)
+    , file_(NULL)
     , path_(arena)
     , valid_(false) {
     if (config.latency != 0) {
-        roc_log(LogError,
+        roc_log(LogInfo,
                 "sndfile source: setting io latency not supported by sndfile backend");
-        return;
     }
 
-    if (!config.sample_spec.is_empty()) {
-        roc_log(LogError, "sndfile source: setting io encoding not supported");
-        return;
+    if (in_spec_.sample_rate() > 0) {
+        roc_log(LogInfo, "sndfile source: setting io encoding not supported");
     }
 
     memset(&file_info_, 0, sizeof(file_info_));
@@ -192,6 +192,24 @@ bool SndfileSource::open_() {
         roc_log(LogInfo, "sndfile source: can't open: input=%s, %s", path_.c_str(),
                 sf_strerror(file_));
         return false;
+    }
+
+    const unsigned long requested_rate = (unsigned long)in_spec_.sample_rate();
+    const unsigned long actual_rate = (unsigned long)file_info_.samplerate;
+
+    if (requested_rate != 0 && requested_rate != actual_rate) {
+        if (no_resampling_) {
+            roc_log(LogError,
+                    "sndfile source: can't open input file with requested sample rate: "
+                    "actual_rate=%lu requested_rate=%lu",
+                    actual_rate, requested_rate);
+            sf_close(file_);
+            file_ = nullptr;
+            return false;
+        }
+        roc_log(LogInfo,
+            "sndfile source: rate mismatch (actual=%lu req=%lu), resampling will occur",
+            actual_rate, requested_rate);
     }
 
     sample_spec_.set_sample_format(audio::SampleFormat_Pcm);

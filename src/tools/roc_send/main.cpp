@@ -89,6 +89,10 @@ int main(int argc, char** argv) {
         }
     }
 
+    if (args.no_resampling_given || args.no_resampling_flag) {
+    io_config.no_resampling = true;
+}
+
     // TODO(gh-608): replace --rate with --io-encoding
     if (args.rate_given) {
         if (args.rate_arg <= 0) {

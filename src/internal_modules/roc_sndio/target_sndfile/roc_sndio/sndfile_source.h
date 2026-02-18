@@ -96,6 +96,8 @@ private:
 
     bool seek_(size_t offset);
 
+    bool no_resampling_;
+    audio::SampleSpec in_spec_;
     audio::SampleSpec sample_spec_;
 
     SNDFILE* file_;

@@ -69,6 +69,8 @@ section "Options"
     option "color" - "Set colored logging mode for stderr output"
         values="auto","always","never" default="auto" enum optional
 
+    option "no-resampling" - "Disable automatic resampling and fail if rates mismatch" flag off
+
 text "
 ENDPOINT_URI is a network endpoint URI, e.g.:
   rtp://127.0.0.1:10001; rtp+rs8m://127.0.0.1:10001; rs8m://[::1]:10001
